@@ -1,55 +1,51 @@
-# 🌍 Wanderlust
+🌍 TripNest
+Full-Stack Travel Accommodation Platform
+Live Demo: https://tripnest-zczi.onrender.com
 
-Wanderlust is a full-stack travel accommodation web application inspired by Airbnb. It allows users to explore listings, add their own properties, view details, and manage bookings through a secure and user-friendly interface.
+🚀 Overview
+TripNest is a full-stack web application inspired by Airbnb, designed to provide a seamless experience for users to discover, list, and manage travel accommodations. The project focuses on robust server-side rendering, RESTful API principles, and secure data handling.
 
-## 🌍 Live Demo
-👉 
+🛠️ Technical Architecture
+The application follows the MVC (Model-View-Controller) design pattern to ensure a clean separation of concerns, making the codebase scalable and maintainable.
+Frontend: Dynamic templating using EJS, styled with Bootstrap 5 for a fully responsive mobile-first UI.
+Backend: Node.js & Express.js handling complex routing and middleware logic.
+Database: MongoDB (NoSQL) with Mongoose for schema-based data modeling.
+Authentication: Strategy-based authentication using Passport.js, supporting persistent sessions.
+Cloud Services: * Cloudinary: For optimized image transformation and storage.
+Mapbox API: For interactive geospatial data visualization.
+MongoDB Atlas: For cloud database hosting.
 
-## ✨ Features
-- User Authentication (Signup/Login)
-- Create, Edit, and Delete Listings
-- Browse and search travel accommodations
-- Image upload for property listings
-- Reviews and ratings system
-- Interactive maps for location view
-- Responsive UI for all devices
+✨ Key Features & Engineering Highlights
+Complete CRUD Functionality: Users can Create, Read, Update, and Delete property listings with server-side validation.
+Geocoding & Interactive Maps: Integrated Mapbox SDK to convert location strings into geographical coordinates (lat/long) for visual markers.
+Image Upload Pipeline: Implemented multi-part form handling (using Multer) to upload property images directly to Cloudinary.
+Security & Validation:
+Used Joi for schema validation to prevent malformed data.
+Implemented Passport-Local for salted and hashed password storage.
+Protected routes using custom middleware for authorization (e.g., only owners can edit listings).
+Review Ecosystem: A nested data relationship allowing users to leave ratings and textual feedback on specific properties.
 
-## 🛠️ Tech Stack
-- Frontend: HTML, CSS, Bootstrap, EJS
-- Backend: Node.js, Express.js
-- Database: MongoDB, Mongoose
-- Authentication: Passport.js
-- Image Storage: Cloudinary
-- Maps: Mapbox API
+⚙️ Installation & Setup
+1.Clone the Repo:
+git clone https://github.com/Shreyaspawar203/Tripnest.git
+cd Tripnest
 
-## 📂 Project Structure
-- MVC Architecture (Models, Views, Controllers)
-- RESTful Routes
-- Secure session management
-- Error handling & validations
-
-## 🚀 Getting Started
-
-### 1️⃣ Clone Repository
-```bash
-git clone https://github.com/anuj2905/Wanderlust.git
-
-
-### 2️⃣ Install Dependencies
+2.Install Dependencies:
 npm install
 
-### 3️⃣ Setup Environment Variables (.env)
-ATLASDB_URL=your_mongodb_url
+3.Environment Configuration:
+Create a .env file in the root directory and add:
+ATLASDB_URL=your_mongodb_atlas_url
 CLOUD_NAME=your_cloudinary_name
-CLOUD_API_KEY=your_api_key
-CLOUD_API_SECRET=your_api_secret
-SECRET=your_session_secret
+CLOUD_API_KEY=your_cloudinary_api_key
+CLOUD_API_SECRET=your_cloudinary_api_secret
+MAP_TOKEN=your_mapbox_public_token
+SECRET=your_session_secret_phrase
 
-### 4️⃣ Run the App
-nodemon app.js
-
-### 5️⃣ Open in Browser
-http://localhost:8080/listings
+4.Launch:
+node app.js (Visit http://localhost:8080/listings in your browser.)
 
 👨‍💻 Author
-Anuj Patil
+Shreyas Pawar Computer Engineering Student | Mumbai University
+https://www.linkedin.com/in/shreyas-pawar-85028a305/
+https://github.com/Shreyaspawar203
