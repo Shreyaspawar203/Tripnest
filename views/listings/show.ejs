@@ -1,0 +1,152 @@
+<% layout("layouts/boilerplate") %>
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+<style>
+  #map {
+    height: 400px;
+    width: 100%;
+    border-radius: 10px;
+    margin-top: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .card-img-top.show-img {
+    max-height: 400px;
+    object-fit: cover;
+  }
+
+  .starability-result:before {
+    content: attr(data-rating) " ★";
+    font-size: 1.2rem;
+    color: #ffc107;
+  }
+</style>
+
+<div class="row">
+  <div class="col-md-8 offset-2">
+    <h3><%= listing.title %></h3>
+    <p class="text-muted">Location: <%= listing.location %>, <%= listing.country %></p>
+
+    <div class="card shadow mb-4">
+      <img src="<%= listing.image.url %>" class="card-img-top show-img" alt="Listing Image">
+      <div class="card-body">
+        <p class="card-text"><%= listing.description %></p>
+        <p class="card-text"><strong>Price:</strong> ₹<%= listing.price.toLocaleString("en-IN") %></p>
+        <p class="card-text"><strong>Posted by:</strong> <%= listing.owner?.username || "Unknown" %></p>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <% if (currUser && listing.owner && currUser._id.equals(listing.owner._id)) { %>
+      <div class="d-flex justify-content-between mb-4">
+        <a href="/listings/<%= listing._id %>/edit" class="btn btn-outline-secondary">Edit</a>
+        <form action="/listings/<%= listing._id %>?_method=DELETE" method="POST">
+          <button class="btn btn-danger">Delete</button>
+        </form>
+      </div>
+    <% } %>
+
+    <!-- Reviews Section -->
+    <h4 class="mt-5">Reviews</h4>
+
+    <% if (listing.reviews.length === 0) { %>
+      <p class="text-muted">No reviews yet. Be the first to write one!</p>
+    <% } %>
+
+    <div class="row">
+      <% for (let review of listing.reviews) { %>
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="card border-primary h-100 shadow-sm">
+            <div class="card-body">
+              <p class="starability-result" data-rating="<%= review.rating %>"></p>
+              <p class="text-muted">By: <%= review.author?.username || "Anonymous" %></p>
+              <p><%= review.comment %></p>
+            </div>
+            <% if (currUser && review.author && currUser._id.equals(review.author._id)) { %>
+              <div class="card-footer text-end">
+                <form action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE" method="POST">
+                  <button class="btn btn-sm btn-outline-danger">
+                    <i class="fa fa-trash"></i> Delete
+                  </button>
+                </form>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      <% } %>
+    </div>
+
+    <!-- Review Form -->
+    <% if (currUser) { %>
+      <div class="mt-5">
+        <h4>Leave a Review</h4>
+        <form action="/listings/<%= listing._id %>/reviews" method="POST" class="needs-validation" novalidate>
+          <div class="mb-3">
+            <label for="rating">Rating</label>
+            <select name="review[rating]" class="form-select" required>
+              <option value="">Select rating</option>
+              <option value="1">1 - Terrible</option>
+              <option value="2">2 - Poor</option>
+              <option value="3">3 - Average</option>
+              <option value="4">4 - Good</option>
+              <option value="5">5 - Excellent</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="comment">Comment</label>
+            <textarea name="review[comment]" class="form-control" rows="3" required></textarea>
+          </div>
+
+          <button class="btn btn-primary" type="submit">Submit Review</button>
+        </form>
+      </div>
+    <% } %>
+
+    <!-- MAP Section -->
+    <div id="map"></div>
+
+
+    
+
+<a href="/bookings/<%= listing._id %>/details" class="btn btn-primary">Reserve Now</a>
+
+
+
+
+  
+
+  </div>
+</div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+  const map = L.map('map').setView([20.5937, 78.9629], 5); // India default
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+
+  <% if (listing.location && listing.country) { %>
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=<%= listing.location + ', ' + listing.country %>`)
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          const { lat, lon } = data[0];
+          map.setView([lat, lon], 13);
+          L.marker([lat, lon])
+            .addTo(map)
+            .bindPopup(`<strong><%= listing.title %></strong><br><%= listing.location %>`)
+            .openPopup();
+        }
+      })
+      .catch(err => console.error("Geocoding failed:", err));
+  <% } %>
+</script>
+
+
+
+

@@ -1,0 +1,161 @@
+<% layout("layouts/boilerplate") %>
+
+<head>
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    #map-preview {
+      height: 300px;
+      margin-bottom: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    }
+
+    img.img-thumbnail {
+      border-radius: 8px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="row">
+    <div class="col-8 offset-2">
+      <h3 class="mb-4">Edit Your Listing</h3>
+
+      <!-- Category -->
+     <div class="mb-3">
+  <label for="category" class="form-label">Category</label>
+  <select class="form-select" name="listing[category]" required>
+    <option disabled value="">Select a category</option>
+    <option value="Beach" <%= listing.category === 'Beach' ? 'selected' : '' %>>Beach</option>
+    <option value="Mountains" <%= listing.category === 'Mountains' ? 'selected' : '' %>>Mountains</option>
+    <option value="City" <%= listing.category === 'City' ? 'selected' : '' %>>City</option>
+    <option value="Desert" <%= listing.category === 'Desert' ? 'selected' : '' %>>Desert</option>
+    <option value="Village" <%= listing.category === 'Village' ? 'selected' : '' %>>Village</option>
+  </select>
+  <div class="invalid-feedback">Category is required.</div>
+</div>
+
+  <!-- Add all categories -->
+</select>
+
+
+      <!-- Form Start -->
+      <form method="POST" action="/listings/<%= listing._id %>?_method=PUT" class="needs-validation" enctype="multipart/form-data" novalidate>
+
+        <!-- Title -->
+        <div class="mb-3">
+          <label for="title" class="form-label">Title</label>
+          <input name="listing[title]" value="<%= listing.title %>" type="text" class="form-control" required />
+          <div class="invalid-feedback">Title is required.</div>
+        </div>
+
+        <!-- Description -->
+        <div class="mb-3">
+          <label for="description" class="form-label">Description</label>
+          <textarea name="listing[description]" class="form-control" required><%= listing.description %></textarea>
+          <div class="invalid-feedback">Description is required.</div>
+        </div>
+
+        <!-- Image Preview -->
+        <div class="mb-3">
+          <label class="form-label">Current Image</label><br>
+          <img src="<%= listing.image.url || 'https://via.placeholder.com/300x200?text=No+Image' %>" alt="Listing Image" width="250" class="img-thumbnail">
+        </div>
+
+        <!-- Change Image -->
+        <div class="mb-3">
+          <label for="image" class="form-label">Change Listing Image</label>
+          <input name="listing[image]" type="file" class="form-control" />
+        </div>
+
+        <!-- Price + Country -->
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <label for="price" class="form-label">Price (₹)</label>
+            <input name="listing[price]" value="<%= listing.price %>" type="number" class="form-control" required />
+            <div class="invalid-feedback">Price is required.</div>
+          </div>
+          <div class="col-md-8">
+            <label for="country" class="form-label">Country</label>
+            <input name="listing[country]" value="<%= listing.country %>" type="text" class="form-control" required />
+            <div class="invalid-feedback">Country is required.</div>
+          </div>
+        </div>
+
+        <!-- Location -->
+        <div class="mb-4">
+          <label for="location" class="form-label">Location</label>
+          <input id="location-input" name="listing[location]" value="<%= listing.location %>" type="text" class="form-control" required />
+          <div class="invalid-feedback">Location is required.</div>
+        </div>
+
+        <!-- Location Map Preview -->
+        <div id="map-preview"></div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn btn-warning">Update Listing</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <script>
+    const locationInput = document.getElementById("location-input");
+    const map = L.map("map-preview").setView([20.5937, 78.9629], 4); // Default India
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "&copy; OpenStreetMap contributors"
+    }).addTo(map);
+
+    let marker;
+
+    async function updateMapFromLocation(loc) {
+      const query = `${loc}, <%= listing.country %>`;
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
+        const data = await res.json();
+        if (data.length) {
+          const lat = parseFloat(data[0].lat);
+          const lon = parseFloat(data[0].lon);
+          map.setView([lat, lon], 10);
+          if (marker) map.removeLayer(marker);
+          marker = L.marker([lat, lon]).addTo(map);
+        }
+      } catch (err) {
+        console.error("Geocoding failed", err);
+      }
+    }
+
+    // On input blur, update map
+    locationInput.addEventListener("blur", () => {
+      if (locationInput.value.trim()) {
+        updateMapFromLocation(locationInput.value.trim());
+      }
+    });
+
+    // Initial map load
+    if (locationInput.value.trim()) {
+      updateMapFromLocation(locationInput.value.trim());
+    }
+  </script>
+
+  <!-- Bootstrap form validation -->
+  <script>
+    (() => {
+      'use strict';
+      const forms = document.querySelectorAll('.needs-validation');
+      Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add('was-validated');
+        }, false);
+      });
+    })();
+  </script>
+</body>

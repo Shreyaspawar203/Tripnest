@@ -1,0 +1,73 @@
+<% layout("layouts/boilerplate") %>
+
+<!-- Category Filters & Tax Toggle -->
+<div class="d-flex flex-wrap align-items-center gap-3 mb-4 px-3">
+
+
+  <!-- Category Filters -->
+  <% const categories = [
+    { name: 'Beach', icon: 'fa-water' },
+    { name: 'Mountains', icon: 'fa-mountain' },
+    { name: 'City', icon: 'fa-city' },
+    { name: 'Forest', icon: 'fa-tree' },
+    { name: 'Island', icon: 'fa-umbrella-beach' },
+    { name: 'Adventure', icon: 'fa-person-hiking' },
+    { name: 'Camping', icon: 'fa-campground' },
+    { name: 'Arctic', icon: 'fa-snowflake' },
+    { name: 'Boats', icon: 'fa-ship' },
+    { name: 'Heritage', icon: 'fa-landmark' },
+  ]; %>
+
+  <% categories.forEach(cat => { %>
+    <a href="/listings?category=<%= cat.name %>" class="text-decoration-none px-3 py-1 rounded <%= selectedCategory === cat.name ? 'bg-primary text-white' : 'text-dark' %>">
+      <i class="fa-solid <%= cat.icon %> me-1"></i> <%= cat.name %>
+    </a>
+  <% }) %>
+
+   <!-- Tax Toggle -->
+  <div class="form-check form-switch" >
+    <input class="form-check-input" type="checkbox" id="taxToggle">
+    <label class="form-check-label" for="taxToggle">Include Tax</label>
+  </div>
+</div>
+
+<!-- Listings Grid -->
+<div class="container mt-2">
+  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+    <% for (let listing of allListings) { %>
+      <div class="col">
+        <a href="/listings/<%= listing._id %>" class="text-decoration-none text-dark">
+          <div class="card h-100 shadow-sm hover-shadow">
+            <img src="<%= listing.image.url || 'https://via.placeholder.com/400x300?text=No+Image' %>"
+              class="card-img-top" alt="listing image" height="300rem">
+
+            <div class="card-body">
+              <h5 class="card-title"><%= listing.title %></h5>
+              <p class="card-text">
+                <small class="text-muted"><%= listing.location %>, <%= listing.country %></small>
+              </p>
+              <p class="fw-bold price-tag" data-base-price="<%= listing.price %>">
+                ₹<%= listing.price.toLocaleString("en-IN") %>
+              </p>
+            </div>
+          </div>
+        </a>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<!-- Tax Toggle Script -->
+<script>
+  const taxToggle = document.getElementById("taxToggle");
+
+  taxToggle.addEventListener("change", () => {
+    document.querySelectorAll(".price-tag").forEach(el => {
+      const rawPrice = parseFloat(el.dataset.basePrice);
+      if (!isNaN(rawPrice)) {
+        const finalPrice = taxToggle.checked ? rawPrice * 1.18 : rawPrice;
+        el.textContent = `₹${Math.round(finalPrice).toLocaleString("en-IN")}`;
+      }
+    });
+  });
+</script>
